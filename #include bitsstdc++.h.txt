@@ -1,0 +1,46 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+// Convert string in given base to long long (or use big integers if needed)
+long long toDecimal(const string &s, int base) {
+    long long num = 0;
+    for (char c : s) {
+        int val;
+        if (isdigit(c)) val = c - '0';
+        else val = 10 + (tolower(c) - 'a'); // handle a-f etc
+        num = num * base + val;
+    }
+    return num;
+}
+
+int main() {
+    // Example: manually feed roots from JSON
+    int n = 4, k = 3;
+    vector<pair<int,string>> roots = {
+        {10, "4"}, {2, "111"}, {10, "12"}
+    };
+
+    vector<long long> r;
+    for (int i = 0; i < k; i++)
+        r.push_back(toDecimal(roots[i].second, roots[i].first));
+
+    // Polynomial coefficients, degree k
+    vector<long long> coeffs(k+1, 0);
+    coeffs[0] = 1; // x^k term = 1
+
+    for (auto root : r) {
+        vector<long long> newC(coeffs.size(), 0);
+        for (int i = 0; i < coeffs.size(); i++) {
+            if (coeffs[i] != 0) {
+                newC[i] += coeffs[i];
+                if (i+1 < coeffs.size())
+                    newC[i+1] -= coeffs[i] * root;
+            }
+        }
+        coeffs = newC;
+    }
+
+    reverse(coeffs.begin(), coeffs.end()); // highest degree first
+    for (auto c : coeffs) cout << c << " ";
+    cout << endl;
+}
